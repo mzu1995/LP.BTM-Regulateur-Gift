@@ -667,7 +667,7 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
 <!-- 2) صورة صفحة المنتج - الجزء الأول                              -->
 <!-- ============================================================ -->
 <section id="section-2-image1">
-    <img src=" LP1.webp" alt="HEXIN Foamy Cleaner - الجزء الأول" class="block w-full max-w-3xl sm:max-w-5xl mx-auto">
+    <img src="LP 1.webp" alt="HEXIN Foamy Cleaner - الجزء الأول" class="block w-full max-w-3xl sm:max-w-5xl mx-auto">
 </section>
 
 <!-- ============================================================ -->
@@ -680,9 +680,16 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
         <h2 class="text-2xl font-extrabold text-gray-900 text-center mb-2">اطلب منتجك</h2>
         <p class="text-gray-500 text-center text-sm mb-6">يرجى ملء النموذج أدناه لإتمام عملية الشراء.</p>
 
-        <p class="text-gray-800 font-bold mb-3">اختر العرض المناسب لك</p>
-
-        <div id="offers-container" class="space-y-3 mb-6"></div>
+        <div id="product-card" class="border-2 border-[#d4af37] rounded-2xl p-4 mb-6 bg-[#fffdf5] flex items-center justify-between gap-3">
+            <div class="flex-1 text-right">
+                <div id="product-badge-wrap"></div>
+                <div class="flex items-center justify-end gap-2 mt-1">
+                    <span id="product-original" class="text-sm text-gray-400 line-through hidden"></span>
+                    <span id="product-saving" class="text-xs text-gray-500 hidden"></span>
+                </div>
+            </div>
+            <span id="product-price" class="font-extrabold text-gray-900 text-2xl whitespace-nowrap">0 د.م</span>
+        </div>
 
         <div class="space-y-4 mb-6">
             <div>
@@ -757,16 +764,16 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
 
         <div class="border border-gray-200 rounded-2xl p-5 mb-6">
             <div class="flex items-center justify-between text-gray-700 text-sm sm:text-base mb-3">
-                <span>سعر المنتج</span>
+                <span>ثمن المنتج</span>
                 <span id="summary-total" class="font-bold text-gray-900">0 د.م</span>
             </div>
             <div class="flex items-center justify-between text-gray-700 text-sm sm:text-base mb-3">
-                <span>التوصيل</span>
+                <span>الشحن</span>
                 <span id="summary-shipping" class="font-bold text-gray-900">مجاني</span>
             </div>
             <div class="h-px bg-gray-200 my-3"></div>
             <div class="flex items-center justify-between">
-                <span class="font-bold text-gray-900">المجموع الكلي</span>
+                <span class="font-bold text-gray-900">المجموع</span>
                 <span id="summary-grand-total" class="font-extrabold text-gray-900 text-lg">0 د.م</span>
             </div>
         </div>
@@ -792,77 +799,46 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
     const PRODUCT_CONFIG = {
         name: 'HEXIN Foamy Cleaner',
         currency: 'د.م',
-        regularPrice: 199,
-        offers: [
-            { qty: 1, price: 139, title: 'اشتري واحد فقط بـ', badge: null },
-            { qty: 2, price: 179, title: 'اشتري اتنان فقط بـ', badge: 'الأكثر طلباً' },
-            { qty: 3, price: 279, title: 'اشتري ثلاثة فقط بـ', badge: 'الأفضل اختياراً' }
-        ],
+        price: 219,
+        regularPrice: 313,
         shippingFree: false,
         shippingCost: 20
     };
-
-    let selectedIndex = 0;
 
     function formatPrice(n) {
         return Math.round(n) + ' ' + PRODUCT_CONFIG.currency;
     }
 
-    function computeOriginal(offer) {
-        if (offer.qty === 1) return PRODUCT_CONFIG.regularPrice;
-        return PRODUCT_CONFIG.offers[0].price * offer.qty;
-    }
+    function renderProduct() {
+        const discount = PRODUCT_CONFIG.regularPrice > PRODUCT_CONFIG.price
+            ? Math.round(((PRODUCT_CONFIG.regularPrice - PRODUCT_CONFIG.price) / PRODUCT_CONFIG.regularPrice) * 100)
+            : 0;
 
-    function computeDiscountPercent(original, price) {
-        if (original <= price) return 0;
-        return Math.round(((original - price) / original) * 100);
-    }
+        document.getElementById('product-price').textContent = formatPrice(PRODUCT_CONFIG.price);
 
-    function renderOffers() {
-        const container = document.getElementById('offers-container');
-        container.innerHTML = '';
+        const badgeWrap = document.getElementById('product-badge-wrap');
+        badgeWrap.innerHTML = discount > 0
+            ? `<span class="inline-block text-[11px] font-bold bg-black text-white px-2.5 py-0.5 rounded-full">${discount}%-</span>`
+            : '';
 
-        PRODUCT_CONFIG.offers.forEach((offer, index) => {
-            const original = computeOriginal(offer);
-            const discount = computeDiscountPercent(original, offer.price);
+        const originalEl = document.getElementById('product-original');
+        const savingEl = document.getElementById('product-saving');
 
-            const card = document.createElement('div');
-            card.className = 'offer-card border-2 border-gray-200 rounded-2xl p-4 cursor-pointer flex items-center justify-between gap-3' + (index === selectedIndex ? ' selected' : '');
-            card.setAttribute('data-index', index);
-
-            card.innerHTML = `
-                <div class="flex-1 text-right">
-                    <div class="flex items-center justify-end gap-2 flex-wrap">
-                        ${offer.badge ? `<span class="text-[11px] font-bold bg-black text-[#d4af37] px-2 py-0.5 rounded-full">${offer.badge}</span>` : ''}
-                        <span class="font-bold text-gray-900 text-base sm:text-lg">${offer.title} ${offer.price} ${PRODUCT_CONFIG.currency}</span>
-                    </div>
-                    <div class="flex items-center justify-end gap-2 mt-1">
-                        ${discount > 0 ? `<span class="text-xs sm:text-sm text-gray-400 line-through">${formatPrice(original)}</span>` : ''}
-                        ${discount > 0 ? `<span class="text-xs text-gray-500">احصل على خصم بقيمة ${formatPrice(original - offer.price)}</span>` : ''}
-                    </div>
-                    ${discount > 0 ? `<span class="inline-block mt-2 text-[11px] font-bold bg-black text-white px-2.5 py-0.5 rounded-full">${discount}%-</span>` : ''}
-                </div>
-                <div class="flex flex-col items-center gap-2">
-                    <span class="font-extrabold text-gray-900 text-xl whitespace-nowrap">${offer.price} ${PRODUCT_CONFIG.currency}</span>
-                    <div class="radio-outer"><div class="radio-inner"></div></div>
-                </div>
-            `;
-
-            card.addEventListener('click', () => {
-                selectedIndex = index;
-                renderOffers();
-                updateSummary();
-            });
-
-            container.appendChild(card);
-        });
+        if (discount > 0) {
+            originalEl.textContent = formatPrice(PRODUCT_CONFIG.regularPrice);
+            originalEl.classList.remove('hidden');
+            savingEl.textContent = 'احصل على خصم بقيمة ' + formatPrice(PRODUCT_CONFIG.regularPrice - PRODUCT_CONFIG.price);
+            savingEl.classList.remove('hidden');
+        } else {
+            originalEl.classList.add('hidden');
+            savingEl.classList.add('hidden');
+        }
     }
 
     function updateSummary() {
-        const offer = PRODUCT_CONFIG.offers[selectedIndex];
-        document.getElementById('summary-total').textContent = formatPrice(offer.price);
+        document.getElementById('summary-total').textContent = formatPrice(PRODUCT_CONFIG.price);
         document.getElementById('summary-shipping').textContent = PRODUCT_CONFIG.shippingFree ? 'مجاني' : formatPrice(PRODUCT_CONFIG.shippingCost || 0);
-        const grandTotal = offer.price + (PRODUCT_CONFIG.shippingFree ? 0 : (PRODUCT_CONFIG.shippingCost || 0));
+        const grandTotal = PRODUCT_CONFIG.price + (PRODUCT_CONFIG.shippingFree ? 0 : (PRODUCT_CONFIG.shippingCost || 0));
         document.getElementById('summary-grand-total').textContent = formatPrice(grandTotal);
     }
 
@@ -1003,7 +979,6 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
         buyBtn.classList.add('opacity-60', 'cursor-not-allowed');
         buyBtn.textContent = 'جاري إرسال الطلب...';
 
-        const offer = PRODUCT_CONFIG.offers[selectedIndex];
         const purchaseEventId = generatePurchaseEventId();
         const order = {
             product: PRODUCT_CONFIG.name,
@@ -1011,8 +986,8 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
             phone: document.getElementById('phone').value.trim(),
             address: document.getElementById('address').value.trim(),
             email: document.getElementById('email').value.trim(), // اختياري — لتحسين Event Match Quality
-            qty: offer.qty,
-            price: offer.price,
+            qty: 1,
+            price: PRODUCT_CONFIG.price,
             eventId: purchaseEventId,      // نفس المعرّف غادي يوصل لـ Apps Script باش يبعثو لـ CAPI
             pageUrl: window.location.href, // مفيد لـ Meta باش يعرف من أي صفحة جا الحدث
             fbp: getMetaFbp(),             // Browser ID من Meta Pixel Cookie
@@ -1046,11 +1021,11 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
             // eventID هنا هو نفسو purchaseEventId اللي بعثناه لـ Apps Script — أساس الـ Deduplication
             if (typeof fbq === 'function') {
                 fbq('track', 'Purchase', {
-                    value: offer.price,
+                    value: PRODUCT_CONFIG.price,
                     currency: 'MAD',
                     content_name: PRODUCT_CONFIG.name,
                     content_type: 'product',
-                    num_items: offer.qty
+                    num_items: 1
                 }, {
                     eventID: purchaseEventId
                 });
@@ -1075,7 +1050,6 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
         }
     });
 
-
     document.getElementById('success-modal-close').addEventListener('click', () => {
         document.getElementById('success-modal').classList.add('hidden');
     });
@@ -1094,7 +1068,7 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
         });
     });
 
-    renderOffers();
+    renderProduct();
     updateSummary();
 </script>
 </section>
@@ -1103,7 +1077,7 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
 <!-- 4) صورة صفحة المنتج - الجزء الثاني                             -->
 <!-- ============================================================ -->
 <section id="section-4-image2">
-    <img src="LP2.webp" alt="HEXIN Foamy Cleaner - الجزء الثاني" class="block w-full max-w-3xl sm:max-w-5xl mx-auto">
+    <img src="LP 2.webp" alt="HEXIN Foamy Cleaner - الجزء الثاني" class="block w-full max-w-3xl sm:max-w-5xl mx-auto">
 </section>
 
 <!-- ============================================================ -->
@@ -1128,6 +1102,7 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
     </div>
   </section>
 
+  <!-- ===== Testimonial Grid ===== -->
   <!-- ===== Testimonial Grid ===== -->
   <section class="grid-section">
     <div class="wrap">
