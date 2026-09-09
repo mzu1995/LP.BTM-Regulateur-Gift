@@ -25,6 +25,9 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.tailwindcss.com">
+<link rel="preconnect" href="https://connect.facebook.net">
+<link rel="preload" as="image" href="LP1.webp" fetchpriority="high">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700;800;900&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
 
 <script src="https://cdn.tailwindcss.com"></script>
@@ -667,7 +670,7 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
 <!-- 2) صورة صفحة المنتج - الجزء الأول                              -->
 <!-- ============================================================ -->
 <section id="section-2-image1">
-    <img src="LP1.webp" alt="HEXIN Foamy Cleaner - الجزء الأول" class="block w-full max-w-3xl sm:max-w-5xl mx-auto">
+    <img src="LP1.webp" alt="HEXIN Foamy Cleaner - الجزء الأول" class="block w-full max-w-3xl sm:max-w-5xl mx-auto" fetchpriority="high" decoding="async">
 </section>
 
 <!-- ============================================================ -->
@@ -680,16 +683,9 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
         <h2 class="text-2xl font-extrabold text-gray-900 text-center mb-2">اطلب منتجك</h2>
         <p class="text-gray-500 text-center text-sm mb-6">يرجى ملء النموذج أدناه لإتمام عملية الشراء.</p>
 
-        <div id="product-card" class="border-2 border-[#d4af37] rounded-2xl p-4 mb-6 bg-[#fffdf5] flex items-center justify-between gap-3">
-            <div class="flex-1 text-right">
-                <div id="product-badge-wrap"></div>
-                <div class="flex items-center justify-end gap-2 mt-1">
-                    <span id="product-original" class="text-sm text-gray-400 line-through hidden"></span>
-                    <span id="product-saving" class="text-xs text-gray-500 hidden"></span>
-                </div>
-            </div>
-            <span id="product-price" class="font-extrabold text-gray-900 text-2xl whitespace-nowrap">0 د.م</span>
-        </div>
+        <p class="text-gray-800 font-bold mb-3">اختر العرض المناسب لك</p>
+
+        <div id="offers-container" class="space-y-3 mb-6"></div>
 
         <div class="space-y-4 mb-6">
             <div>
@@ -764,16 +760,16 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
 
         <div class="border border-gray-200 rounded-2xl p-5 mb-6">
             <div class="flex items-center justify-between text-gray-700 text-sm sm:text-base mb-3">
-                <span>ثمن المنتج</span>
+                <span>سعر المنتج</span>
                 <span id="summary-total" class="font-bold text-gray-900">0 د.م</span>
             </div>
             <div class="flex items-center justify-between text-gray-700 text-sm sm:text-base mb-3">
-                <span>الشحن</span>
+                <span>التوصيل</span>
                 <span id="summary-shipping" class="font-bold text-gray-900">مجاني</span>
             </div>
             <div class="h-px bg-gray-200 my-3"></div>
             <div class="flex items-center justify-between">
-                <span class="font-bold text-gray-900">المجموع</span>
+                <span class="font-bold text-gray-900">المجموع الكلي</span>
                 <span id="summary-grand-total" class="font-extrabold text-gray-900 text-lg">0 د.م</span>
             </div>
         </div>
@@ -799,46 +795,77 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
     const PRODUCT_CONFIG = {
         name: 'HEXIN Foamy Cleaner',
         currency: 'د.م',
-        price: 219,
-        regularPrice: 313,
+        regularPrice: 199,
+        offers: [
+            { qty: 1, price: 139, title: 'اشتري واحد فقط بـ', badge: null },
+            { qty: 2, price: 179, title: 'اشتري اتنان فقط بـ', badge: 'الأكثر طلباً' },
+            { qty: 3, price: 279, title: 'اشتري ثلاثة فقط بـ', badge: 'الأفضل اختياراً' }
+        ],
         shippingFree: false,
         shippingCost: 20
     };
+
+    let selectedIndex = 0;
 
     function formatPrice(n) {
         return Math.round(n) + ' ' + PRODUCT_CONFIG.currency;
     }
 
-    function renderProduct() {
-        const discount = PRODUCT_CONFIG.regularPrice > PRODUCT_CONFIG.price
-            ? Math.round(((PRODUCT_CONFIG.regularPrice - PRODUCT_CONFIG.price) / PRODUCT_CONFIG.regularPrice) * 100)
-            : 0;
+    function computeOriginal(offer) {
+        if (offer.qty === 1) return PRODUCT_CONFIG.regularPrice;
+        return PRODUCT_CONFIG.offers[0].price * offer.qty;
+    }
 
-        document.getElementById('product-price').textContent = formatPrice(PRODUCT_CONFIG.price);
+    function computeDiscountPercent(original, price) {
+        if (original <= price) return 0;
+        return Math.round(((original - price) / original) * 100);
+    }
 
-        const badgeWrap = document.getElementById('product-badge-wrap');
-        badgeWrap.innerHTML = discount > 0
-            ? `<span class="inline-block text-[11px] font-bold bg-black text-white px-2.5 py-0.5 rounded-full">${discount}%-</span>`
-            : '';
+    function renderOffers() {
+        const container = document.getElementById('offers-container');
+        container.innerHTML = '';
 
-        const originalEl = document.getElementById('product-original');
-        const savingEl = document.getElementById('product-saving');
+        PRODUCT_CONFIG.offers.forEach((offer, index) => {
+            const original = computeOriginal(offer);
+            const discount = computeDiscountPercent(original, offer.price);
 
-        if (discount > 0) {
-            originalEl.textContent = formatPrice(PRODUCT_CONFIG.regularPrice);
-            originalEl.classList.remove('hidden');
-            savingEl.textContent = 'احصل على خصم بقيمة ' + formatPrice(PRODUCT_CONFIG.regularPrice - PRODUCT_CONFIG.price);
-            savingEl.classList.remove('hidden');
-        } else {
-            originalEl.classList.add('hidden');
-            savingEl.classList.add('hidden');
-        }
+            const card = document.createElement('div');
+            card.className = 'offer-card border-2 border-gray-200 rounded-2xl p-4 cursor-pointer flex items-center justify-between gap-3' + (index === selectedIndex ? ' selected' : '');
+            card.setAttribute('data-index', index);
+
+            card.innerHTML = `
+                <div class="flex-1 text-right">
+                    <div class="flex items-center justify-end gap-2 flex-wrap">
+                        ${offer.badge ? `<span class="text-[11px] font-bold bg-black text-[#d4af37] px-2 py-0.5 rounded-full">${offer.badge}</span>` : ''}
+                        <span class="font-bold text-gray-900 text-base sm:text-lg">${offer.title} ${offer.price} ${PRODUCT_CONFIG.currency}</span>
+                    </div>
+                    <div class="flex items-center justify-end gap-2 mt-1">
+                        ${discount > 0 ? `<span class="text-xs sm:text-sm text-gray-400 line-through">${formatPrice(original)}</span>` : ''}
+                        ${discount > 0 ? `<span class="text-xs text-gray-500">احصل على خصم بقيمة ${formatPrice(original - offer.price)}</span>` : ''}
+                    </div>
+                    ${discount > 0 ? `<span class="inline-block mt-2 text-[11px] font-bold bg-black text-white px-2.5 py-0.5 rounded-full">${discount}%-</span>` : ''}
+                </div>
+                <div class="flex flex-col items-center gap-2">
+                    <span class="font-extrabold text-gray-900 text-xl whitespace-nowrap">${offer.price} ${PRODUCT_CONFIG.currency}</span>
+                    <div class="radio-outer"><div class="radio-inner"></div></div>
+                </div>
+            `;
+
+            card.addEventListener('click', () => {
+                selectedIndex = index;
+                renderOffers();
+                updateSummary();
+            });
+
+            container.appendChild(card);
+        });
     }
 
     function updateSummary() {
-        document.getElementById('summary-total').textContent = formatPrice(PRODUCT_CONFIG.price);
+        const offer = PRODUCT_CONFIG.offers[selectedIndex];
+        document.getElementById('summary-total').textContent = formatPrice(offer.price);
         document.getElementById('summary-shipping').textContent = PRODUCT_CONFIG.shippingFree ? 'مجاني' : formatPrice(PRODUCT_CONFIG.shippingCost || 0);
-        const grandTotal = PRODUCT_CONFIG.price + (PRODUCT_CONFIG.shippingFree ? 0 : (PRODUCT_CONFIG.shippingCost || 0));
+        const grandTotal = offer.price + (PRODUCT_CONFIG.shippingFree ? 0 : (PRODUCT_CONFIG.shippingCost || 0));
         document.getElementById('summary-grand-total').textContent = formatPrice(grandTotal);
     }
 
@@ -979,6 +1006,7 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
         buyBtn.classList.add('opacity-60', 'cursor-not-allowed');
         buyBtn.textContent = 'جاري إرسال الطلب...';
 
+        const offer = PRODUCT_CONFIG.offers[selectedIndex];
         const purchaseEventId = generatePurchaseEventId();
         const order = {
             product: PRODUCT_CONFIG.name,
@@ -986,8 +1014,8 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
             phone: document.getElementById('phone').value.trim(),
             address: document.getElementById('address').value.trim(),
             email: document.getElementById('email').value.trim(), // اختياري — لتحسين Event Match Quality
-            qty: 1,
-            price: PRODUCT_CONFIG.price,
+            qty: offer.qty,
+            price: offer.price,
             eventId: purchaseEventId,      // نفس المعرّف غادي يوصل لـ Apps Script باش يبعثو لـ CAPI
             pageUrl: window.location.href, // مفيد لـ Meta باش يعرف من أي صفحة جا الحدث
             fbp: getMetaFbp(),             // Browser ID من Meta Pixel Cookie
@@ -1021,11 +1049,11 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
             // eventID هنا هو نفسو purchaseEventId اللي بعثناه لـ Apps Script — أساس الـ Deduplication
             if (typeof fbq === 'function') {
                 fbq('track', 'Purchase', {
-                    value: PRODUCT_CONFIG.price,
+                    value: offer.price,
                     currency: 'MAD',
                     content_name: PRODUCT_CONFIG.name,
                     content_type: 'product',
-                    num_items: 1
+                    num_items: offer.qty
                 }, {
                     eventID: purchaseEventId
                 });
@@ -1050,6 +1078,7 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
         }
     });
 
+
     document.getElementById('success-modal-close').addEventListener('click', () => {
         document.getElementById('success-modal').classList.add('hidden');
     });
@@ -1068,7 +1097,7 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
         });
     });
 
-    renderProduct();
+    renderOffers();
     updateSummary();
 </script>
 </section>
@@ -1077,7 +1106,7 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
 <!-- 4) صورة صفحة المنتج - الجزء الثاني                             -->
 <!-- ============================================================ -->
 <section id="section-4-image2">
-    <img src="LP2.webp" alt="HEXIN Foamy Cleaner - الجزء الثاني" class="block w-full max-w-3xl sm:max-w-5xl mx-auto">
+    <img src="LP2.webp" alt="HEXIN Foamy Cleaner - الجزء الثاني" class="block w-full max-w-3xl sm:max-w-5xl mx-auto" loading="lazy" decoding="async">
 </section>
 
 <!-- ============================================================ -->
@@ -1103,7 +1132,6 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
   </section>
 
   <!-- ===== Testimonial Grid ===== -->
-  <!-- ===== Testimonial Grid ===== -->
   <section class="grid-section">
     <div class="wrap">
       <div class="grid" id="testiGrid">
@@ -1115,7 +1143,7 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
             محادثة موثّقة
           </span>
           <div class="shot-frame">
-            <img src="1.PNG" alt="شهادة عميل حقيقية عبر واتساب - 1" loading="lazy">
+            <img src="1.webp" alt="شهادة عميل حقيقية عبر واتساب - 1" loading="lazy">
             <span class="zoom-hint"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="7" stroke="#fff" stroke-width="1.8"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></span>
           </div>
           <div class="card-footer">
@@ -1131,7 +1159,7 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
             محادثة موثّقة
           </span>
           <div class="shot-frame">
-            <img src="2.PNG" alt="شهادة عميل حقيقية عبر واتساب - 2" loading="lazy">
+            <img src="2.webp" alt="شهادة عميل حقيقية عبر واتساب - 2" loading="lazy">
             <span class="zoom-hint"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="7" stroke="#fff" stroke-width="1.8"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></span>
           </div>
           <div class="card-footer">
@@ -1147,7 +1175,7 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
             محادثة موثّقة
           </span>
           <div class="shot-frame">
-            <img src="3.PNG" alt="شهادة عميل حقيقية عبر واتساب - 3" loading="lazy">
+            <img src="3.webp" alt="شهادة عميل حقيقية عبر واتساب - 3" loading="lazy">
             <span class="zoom-hint"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="7" stroke="#fff" stroke-width="1.8"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></span>
           </div>
           <div class="card-footer">
@@ -1163,7 +1191,7 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
             محادثة موثّقة
           </span>
           <div class="shot-frame">
-            <img src="4.PNG" alt="شهادة عميل حقيقية عبر واتساب - 4" loading="lazy">
+            <img src="4.webp" alt="شهادة عميل حقيقية عبر واتساب - 4" loading="lazy">
             <span class="zoom-hint"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="7" stroke="#fff" stroke-width="1.8"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></span>
           </div>
           <div class="card-footer">
@@ -1610,36 +1638,15 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
     }
 </script>
 </section>
-<script>
-
-    function openModal(modalId) {
-        document.getElementById(modalId).classList.remove('hidden');
-    }
-
-    function closeModal(modalId) {
-        document.getElementById(modalId).classList.add('hidden');
-    }
-
-    // إغلاق النافذة عند الضغط خارج منطقة المحتوى
-    window.onclick = function(event) {
-        const modals = document.querySelectorAll('.fixed.inset-0');
-        modals.forEach(modal => {
-            if (event.target == modal) {
-                modal.classList.add('hidden');
-            }
-        });
-    }
-
-</script>
 
 <!-- ===== Testimonials Lightbox Script ===== -->
 <script>
 (function(){
   var images = [
-    '1.PNG',
-    '2.PNG',
-    '3.PNG',
-    '4.PNG'
+    '1.webp',
+    '2.webp',
+    '3.webp',
+    '4.webp'
   ];
   var overlay  = document.getElementById('testiLightbox');
   var lbImage  = document.getElementById('lbImage');
