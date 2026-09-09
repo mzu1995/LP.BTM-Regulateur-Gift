@@ -81,6 +81,86 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
         }
     }
 
+    /* ===== Mobile performance & layout refinements ===== */
+    img {
+        max-width: 100%;
+    }
+
+    /* لا نحتاج تأثيرات hover على الأجهزة اللمسية */
+    @media (hover: none) {
+        .card:hover {
+            transform: none;
+            border-color: var(--panel-border);
+            box-shadow: 0 18px 40px rgba(0,0,0,.45);
+        }
+        .card:hover .shot-frame::after {
+            opacity: 0;
+        }
+        .card:hover .zoom-hint {
+            opacity: 0;
+            transform: translate(-50%,-50%) scale(.85);
+        }
+    }
+
+    /* تخفيف الحركة المستمرة على الهاتف مع الحفاظ على الشكل */
+    @media (max-width: 767px) {
+        html {
+            scroll-behavior: auto;
+        }
+
+        /* الحركات المستمرة غير ضرورية للمستخدم على الهاتف؛ إيقافها يقلل عمل الـ CPU */
+        .bell-icon,
+        .ring-pulse,
+        .live-dot {
+            animation: none !important;
+        }
+
+        .footer-container {
+            width: 100%;
+            max-width: 100%;
+            padding-left: 16px;
+            padding-right: 16px;
+            box-sizing: border-box;
+        }
+
+        footer .footer-columns {
+            grid-template-columns: 1fr;
+            gap: 32px;
+            width: 100%;
+            justify-items: center;
+        }
+
+        footer .footer-columns > div {
+            width: min(100%, 320px);
+        }
+
+        footer .footer-columns h3,
+        footer .footer-columns h4,
+        footer .footer-columns p,
+        footer .footer-columns a {
+            text-align: center;
+        }
+
+        /* صور الشهادات: سلوك ثابت وخفيف في الهاتف */
+        #testiGrid .shot-frame img {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+    }
+
+    /* تقليل تكلفة الحركات التي لا يحتاجها المستخدم أثناء التمرير */
+    @media (prefers-reduced-motion: reduce) {
+        html {
+            scroll-behavior: auto;
+        }
+        *, *::before, *::after {
+            animation-duration: .01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: .01ms !important;
+        }
+    }
+
     /* ===== 1) Promo banner ===== */
     
 @keyframes bellRing {
@@ -1123,7 +1203,7 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
             محادثة موثّقة
           </span>
           <div class="shot-frame">
-            <img src="1.webp" alt="شهادة عميل حقيقية عبر واتساب - 1" loading="lazy">
+            <img src="1.webp" alt="شهادة عميل حقيقية عبر واتساب - 1" loading="lazy" decoding="async">
             <span class="zoom-hint"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="7" stroke="#fff" stroke-width="1.8"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></span>
           </div>
           <div class="card-footer">
@@ -1139,7 +1219,7 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
             محادثة موثّقة
           </span>
           <div class="shot-frame">
-            <img src="2.webp" alt="شهادة عميل حقيقية عبر واتساب - 2" loading="lazy">
+            <img src="2.webp" alt="شهادة عميل حقيقية عبر واتساب - 2" loading="lazy" decoding="async">
             <span class="zoom-hint"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="7" stroke="#fff" stroke-width="1.8"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></span>
           </div>
           <div class="card-footer">
@@ -1155,7 +1235,7 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
             محادثة موثّقة
           </span>
           <div class="shot-frame">
-            <img src="3.webp" alt="شهادة عميل حقيقية عبر واتساب - 3" loading="lazy">
+            <img src="3.webp" alt="شهادة عميل حقيقية عبر واتساب - 3" loading="lazy" decoding="async">
             <span class="zoom-hint"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="7" stroke="#fff" stroke-width="1.8"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></span>
           </div>
           <div class="card-footer">
@@ -1171,7 +1251,7 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
             محادثة موثّقة
           </span>
           <div class="shot-frame">
-            <img src="4.webp" alt="شهادة عميل حقيقية عبر واتساب - 4" loading="lazy">
+            <img src="4.webp" alt="شهادة عميل حقيقية عبر واتساب - 4" loading="lazy" decoding="async">
             <span class="zoom-hint"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="7" stroke="#fff" stroke-width="1.8"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></span>
           </div>
           <div class="card-footer">
