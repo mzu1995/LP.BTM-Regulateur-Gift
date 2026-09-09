@@ -45,6 +45,15 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
     }
     html { scroll-behavior: smooth; }
 
+    /* إصلاح صارم لتمركز الفوتر — يضمن التوسيط الصحيح بغض النظر عن أي تعارض في ترتيب كلاسات Tailwind */
+    footer .container {
+        width: 100% !important;
+        max-width: 64rem !important; /* مطابق لـ max-w-5xl */
+        margin-left: auto !important;
+        margin-right: auto !important;
+        box-sizing: border-box !important;
+    }
+
     /* ===== 1) Promo banner ===== */
     
 @keyframes bellRing {
