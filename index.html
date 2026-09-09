@@ -45,13 +45,40 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
     }
     html { scroll-behavior: smooth; }
 
-    /* إصلاح صارم لتمركز الفوتر — يضمن التوسيط الصحيح بغض النظر عن أي تعارض في ترتيب كلاسات Tailwind */
+    /* ===== Footer: تثبيت التوسيط على شاشات اللابتوب ===== */
     footer .container {
-        width: 100% !important;
-        max-width: 64rem !important; /* مطابق لـ max-w-5xl */
+        width: min(1200px, calc(100% - 48px)) !important;
+        max-width: 1200px !important;
         margin-left: auto !important;
         margin-right: auto !important;
         box-sizing: border-box !important;
+    }
+
+    /* توزيع الأعمدة الثلاثة بالتساوي حول مركز الصفحة */
+    footer .footer-columns {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 60px;
+        text-align: center;
+        justify-items: center;
+        align-items: start;
+    }
+
+    footer .footer-columns > div {
+        width: 100%;
+        text-align: center;
+    }
+
+    @media (max-width: 767px) {
+        footer .container {
+            width: calc(100% - 32px) !important;
+        }
+
+        footer .footer-columns {
+            grid-template-columns: 1fr;
+            gap: 40px;
+        }
     }
 
     /* ===== 1) Promo banner ===== */
@@ -1190,7 +1217,7 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
 <!-- الفوتر الخاص بمتجر Dialk (بدون صفحة هبوط) -->
 <!-- ========================================== -->
 <footer class="bg-black pt-12 pb-8" dir="rtl">
-    <div class="container mx-auto px-4 max-w-5xl">
+    <div class="container mx-auto px-4 max-w-5xl footer-container">
 
         <!-- شعار المتجر: Dialk -->
         <div class="flex justify-center mb-3">
@@ -1204,7 +1231,7 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
         </div>
 
         <!-- الأقسام الثلاثة -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10 text-center footer-columns">
 
             <!-- القسم الأول -->
             <div>
