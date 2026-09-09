@@ -614,68 +614,6 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
     setTimeout(animateIntro, 400);
 </script>
 </section>
-<script>
-
-    const COUNTER_CONFIG = {
-        startValue: 12,
-        targetValue: 42,
-        introDurationMs: 2400,
-        liveIncrementMin: 1,
-        liveIncrementMax: 3,
-        liveIntervalMinMs: 7000,
-        liveIntervalMaxMs: 16000
-    };
-
-    const countEl = document.getElementById('order-count');
-    let currentValue = COUNTER_CONFIG.startValue;
-
-    function setCount(value) {
-        currentValue = value;
-        countEl.textContent = value;
-        countEl.classList.remove('number-pop');
-        void countEl.offsetWidth;
-        countEl.classList.add('number-pop');
-    }
-
-    function animateIntro() {
-        const start = COUNTER_CONFIG.startValue;
-        const end = COUNTER_CONFIG.targetValue;
-        const duration = COUNTER_CONFIG.introDurationMs;
-        const startTime = performance.now();
-        let lastShown = start;
-
-        function tick(now) {
-            const elapsed = now - startTime;
-            const t = Math.min(elapsed / duration, 1);
-            const eased = 1 - Math.pow(1 - t, 3);
-            const value = Math.round(start + (end - start) * eased);
-            if (value !== lastShown) {
-                lastShown = value;
-                setCount(value);
-            }
-            if (t < 1) {
-                requestAnimationFrame(tick);
-            } else {
-                setCount(end);
-                scheduleLiveIncrement();
-            }
-        }
-        requestAnimationFrame(tick);
-    }
-
-    function scheduleLiveIncrement() {
-        const delay = COUNTER_CONFIG.liveIntervalMinMs + Math.random() * (COUNTER_CONFIG.liveIntervalMaxMs - COUNTER_CONFIG.liveIntervalMinMs);
-        setTimeout(() => {
-            const add = Math.floor(COUNTER_CONFIG.liveIncrementMin + Math.random() * (COUNTER_CONFIG.liveIncrementMax - COUNTER_CONFIG.liveIncrementMin + 1));
-            setCount(currentValue + add);
-            scheduleLiveIncrement();
-        }, delay);
-    }
-
-    countEl.textContent = COUNTER_CONFIG.startValue;
-    setTimeout(animateIntro, 400);
-
-</script>
 
 <!-- ============================================================ -->
 <!-- 2) صورة صفحة المنتج - الجزء الأول                              -->
