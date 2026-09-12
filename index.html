@@ -815,7 +815,7 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
                 </svg>
                 <span class="text-sm sm:text-base font-bold text-white">التوصيل لجميع المدن</span>
             </div>
-            <span class="text-sm sm:text-base font-extrabold" style="color:#d4af37;">20 د.م</span>
+            <span id="shipping-banner-price" class="text-sm sm:text-base font-extrabold" style="color:#d4af37;">20 د.م</span>
         </div>
 
         <div class="border border-gray-200 rounded-2xl p-5 mb-6">
@@ -861,7 +861,7 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
             { qty: 2, price: 179, title: 'اشتري اتنان فقط بـ', badge: 'الأكثر طلباً' },
             { qty: 3, price: 279, title: 'اشتري ثلاثة فقط بـ', badge: 'الأفضل اختياراً' }
         ],
-        shippingFree: false,
+        shippingFree: true,
         shippingCost: 20
     };
 
@@ -1067,6 +1067,9 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
         buyBtn.textContent = 'جاري إرسال الطلب...';
 
         const offer = PRODUCT_CONFIG.offers[selectedIndex];
+        // المجموع الكلي الحقيقي = سعر المنتج + ثمن التوصيل (نفس الحساب المستعمل فـ updateSummary)
+        const shippingCost = PRODUCT_CONFIG.shippingFree ? 0 : (PRODUCT_CONFIG.shippingCost || 0);
+        const grandTotal = offer.price + shippingCost;
         const purchaseEventId = generatePurchaseEventId();
         const order = {
             product: PRODUCT_CONFIG.name,
@@ -1075,7 +1078,7 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
             address: document.getElementById('address').value.trim(),
             email: document.getElementById('email').value.trim(), // اختياري — لتحسين Event Match Quality
             qty: offer.qty,
-            price: offer.price,
+            price: grandTotal, // المجموع الكلي شامل التوصيل (كان offer.price بلا توصيل)
             eventId: purchaseEventId,      // نفس المعرّف غادي يوصل لـ Apps Script باش يبعثو لـ CAPI
             pageUrl: window.location.href, // مفيد لـ Meta باش يعرف من أي صفحة جا الحدث
             fbp: getMetaFbp(),             // Browser ID من Meta Pixel Cookie
@@ -1109,7 +1112,7 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
             // eventID هنا هو نفسو purchaseEventId اللي بعثناه لـ Apps Script — أساس الـ Deduplication
             if (typeof fbq === 'function') {
                 fbq('track', 'Purchase', {
-                    value: offer.price,
+                    value: grandTotal, // المجموع الكلي شامل التوصيل (كان offer.price بلا توصيل)
                     currency: 'MAD',
                     content_name: PRODUCT_CONFIG.name,
                     content_type: 'product',
@@ -1159,6 +1162,8 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
 
     renderOffers();
     updateSummary();
+    document.getElementById('shipping-banner-price').textContent =
+        PRODUCT_CONFIG.shippingFree ? 'مجاني' : formatPrice(PRODUCT_CONFIG.shippingCost || 0);
 </script>
 </section>
 
@@ -1166,7 +1171,7 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
 <!-- 4) صورة صفحة المنتج - الجزء الثاني                             -->
 <!-- ============================================================ -->
 <section id="section-4-image2">
-    <img src="LP2-optimized.webp" alt="HEXIN Foamy Cleaner - الجزء الثاني" class="block w-full max-w-3xl sm:max-w-5xl mx-auto" loading="lazy" decoding="async" width="800" height="2688">
+    <img src="LP2.webp" alt="HEXIN Foamy Cleaner - الجزء الثاني" class="block w-full max-w-3xl sm:max-w-5xl mx-auto" loading="lazy" decoding="async" width="800" height="2688">
 </section>
 
 <!-- ============================================================ -->
@@ -1203,7 +1208,7 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
             محادثة موثّقة
           </span>
           <div class="shot-frame">
-            <img src="1.webp" alt="شهادة عميل حقيقية عبر واتساب - 1" loading="lazy" decoding="async">
+            <img src="1.webp" alt="شهادة عميل حقيقية عبر واتساب - 1" loading="lazy" decoding="async" width="339" height="768">
             <span class="zoom-hint"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="7" stroke="#fff" stroke-width="1.8"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></span>
           </div>
           <div class="card-footer">
@@ -1219,7 +1224,7 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
             محادثة موثّقة
           </span>
           <div class="shot-frame">
-            <img src="2.webp" alt="شهادة عميل حقيقية عبر واتساب - 2" loading="lazy" decoding="async">
+            <img src="2.webp" alt="شهادة عميل حقيقية عبر واتساب - 2" loading="lazy" decoding="async" width="768" height="1376">
             <span class="zoom-hint"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="7" stroke="#fff" stroke-width="1.8"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></span>
           </div>
           <div class="card-footer">
@@ -1235,7 +1240,7 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
             محادثة موثّقة
           </span>
           <div class="shot-frame">
-            <img src="3.webp" alt="شهادة عميل حقيقية عبر واتساب - 3" loading="lazy" decoding="async">
+            <img src="3.webp" alt="شهادة عميل حقيقية عبر واتساب - 3" loading="lazy" decoding="async" width="351" height="772">
             <span class="zoom-hint"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="7" stroke="#fff" stroke-width="1.8"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></span>
           </div>
           <div class="card-footer">
@@ -1251,7 +1256,7 @@ src="https://www.facebook.com/tr?id=1057053056700870&ev=PageView&noscript=1"
             محادثة موثّقة
           </span>
           <div class="shot-frame">
-            <img src="4.webp" alt="شهادة عميل حقيقية عبر واتساب - 4" loading="lazy" decoding="async">
+            <img src="4.webp" alt="شهادة عميل حقيقية عبر واتساب - 4" loading="lazy" decoding="async" width="768" height="1376">
             <span class="zoom-hint"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="7" stroke="#fff" stroke-width="1.8"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></span>
           </div>
           <div class="card-footer">
